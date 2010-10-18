@@ -2,61 +2,29 @@
 
 use strict;
 use warnings;
+use Encode qw/encode decode/;
+use Lingua::JA::Romaji 'kanatoromaji';
+use Getopt::Long;
 
 use utf8;
 binmode STDOUT, ":utf8";
 
 my ($open_quote, $close_quote) = ('「','」');
+my $romaji_text;
 
-my %hg_map = (
-    "あ" => "a",
-    "い" => "i",
-    "う" => "u",
-    "え" => "e",
-    "お" => "o",
-    "か" => "ka",
-    "き" => "ki",
-    "く" => "ku",
-    "け" => "ke",
-    "こ" => "ko",
-    "さ" => "sa",
-    "し" => "shi",
-    "す" => "su",
-    "せ" => "se",
-    "そ" => "so",
-    "た" => "ta",
-    "ち" => "chi",
-    "つ" => "tsu",
-    "て" => "te",
-    "と" => "to",
-    "な" => "na",
-    "に" => "ni",
-    "ぬ" => "nu",
-    "ね" => "ne",
-    "の" => "no",
-    "は" => "ha",
-    "ひ" => "hi",
-    "ふ" => "hu",
-    "へ" => "he",
-    "ほ" => "ho",
-    "ま" => "ma",
-    "み" => "mi",
-    "む" => "mu",
-    "め" => "me",
-    "も" => "mo",
-    "や" => "ya",
-    "ゆ" => "yu",
-    "よ" => "yo",
-    "ら" => "ra",
-    "り" => "ri",
-    "る" => "ru",
-    "れ" => "re",
-    "ろ" => "ro",
-    "わ" => "wa",
-    "を" => "wo",
-    "ん" => "n",
-);
-my @hg_chars = keys %hg_map;
+sub eucjp2utf8 {
+    decode("euc-jp", shift)
+}
+sub utf82eucjp {
+    encode("euc-jp", shift)
+}
+
+my @hiragana = map {eucjp2utf8($_)} keys %Lingua::JA::Romaji::hiragana;
+my @katakana = map {eucjp2utf8($_)} keys %Lingua::JA::Romaji::katakana;
+
+sub kana2roma {
+    lc eucjp2utf8(kanatoromaji(utf82eucjp(shift)))
+}
 
 sub get_ans {
     my $line = <STDIN>;
@@ -70,15 +38,16 @@ sub get_ans {
 
 sub do_test {
     my $char = shift;
+    my $roma = kana2roma($char);
 
     my ($try,$done) = ("",0);
     do {
-        print "\nEnter the ろまじ (romaji) for $open_quote$char$close_quote:    ";
+        print "\nEnter the $romaji_text (romaji) for $open_quote$char$close_quote:    ";
         $try = get_ans();
         if ($try eq "") {
-            print "Skipping question. Answer was '$hg_map{$char}'.\n";
+            print "Skipping question. Answer was '$roma'.\n";
             $done = 1;
-        } elsif ($try =~ /^$hg_map{$char}$/i) {
+        } elsif ($try =~ /^$roma$/i) {
             print "Huzzah! Correct answer!\n";
             $done = 1;
         } else {
@@ -89,11 +58,40 @@ sub do_test {
     print "\nNext question...";
 }
 
+sub select_char {
+    my $charlist = shift;
+    my ($char,$roma);
+    while (!defined $char || $char eq "" || $roma =~ /x/ ||
+        $char eq $roma)
+    {
+        $char = $charlist->[int rand scalar @$charlist];
+        $roma = kana2roma($char);
+    }
+    $char
+}
+
 sub main {
-    print "ひらがな (hiragana) quiz\nNote: doesn't yet test muddied sounds or small つ、や、よ、ゆ\n";
+    my $kana = "";
+    my $opt_ok = GetOptions("kana=s" => \$kana);
+    if (!$opt_ok || ($kana !~ /hira/i && $kana !~ /kata/i)) {
+        print "Pass either --kana=hira or --kana=kata.\n";
+        return 1;
+    }
+    my $do_hira = ($kana =~ /hira/i);
+    my $charlist;
+
+    if ($do_hira) {
+        print "ひらがな (hiragana) quiz\n";
+        $romaji_text = "ろまじ";
+        $charlist = \@hiragana;
+    } else {
+        print "カタカナ (katakana) quiz\n";
+        $romaji_text = "ロマジ";
+        $charlist = \@katakana;
+    }
 
     while (1) {
-        my $char = $hg_chars[int rand @hg_chars];
+        my $char = select_char($charlist);
         eval {
             do_test($char);
         };
@@ -107,5 +105,6 @@ sub main {
 
     return 0;
 }
+
 
 exit main();

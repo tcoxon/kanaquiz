@@ -1,0 +1,31 @@
+kanaquiz
+--------
+
+Crude perl flashcard quiz script for teaching hiragana and katakana by Tom
+Coxon.
+
+Uses Lingua::JA::Romaji by Jacob C. Kesinger.
+
+Licensed under the GNU General Public License. A copy of this was distributed
+with your perl interpreter.
+
+Instructions:
+-------------
+
+To test hiragana:
+    $ perl quiz.pl --kana=hira
+
+To test katakana:
+    $ perl quiz.pl --kana=kata
+
+When the script presents a character to you, enter the corresponding romaji and
+hit enter. If you get it wrong, the script will ask for it again. If you give
+up, hit enter without entering anything, and the script will tell you the
+romaji.
+
+TODO:
+-----
+
+It's very strict about the romaji spelling. Should probably use the romaji to
+kana conversion provided in Lingua::JA::Romaji instead.
+

@@ -68,7 +68,9 @@ sub do_test {
 sub select_char {
     my $charlist = shift;
     my ($char,$roma);
-    while (!defined $char || $char eq "" || $roma =~ /x/ || $char eq $roma) {
+    while (!defined $char || $char eq "" || $roma =~ /x/ ||
+        $roma !~ /^[a-zA-Z]+$/)
+    {
         $char = $charlist->[int rand scalar @$charlist];
         $roma = kana2roma($char);
     }

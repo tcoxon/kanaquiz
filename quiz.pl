@@ -23,6 +23,8 @@ my $kana;
 my @hiragana = map {eucjp2utf8($_)} keys %Lingua::JA::Romaji::hiragana;
 my @katakana = map {eucjp2utf8($_)} keys %Lingua::JA::Romaji::katakana;
 
+my $single_only = 0;
+
 sub kana2roma {
     lc eucjp2utf8(kanatoromaji(utf82eucjp(shift)))
 }
@@ -66,17 +68,22 @@ sub do_test {
 sub select_char {
     my $charlist = shift;
     my ($char,$roma);
-    while (!defined $char || $char eq "" || $roma =~ /x/ ||
-        $char eq $roma)
-    {
+    while (!defined $char || $char eq "" || $roma =~ /x/ || $char eq $roma) {
         $char = $charlist->[int rand scalar @$charlist];
         $roma = kana2roma($char);
     }
-    $char
+    if (!$single_only || length $char == 1) {
+        $char
+    } else {
+        select_char($charlist);
+    }
 }
 
 sub main {
-    my $opt_ok = GetOptions("kana=s" => \$kana);
+    my $opt_ok = GetOptions(
+        "kana=s" => \$kana,
+        "single_only|single_characters|single_chars" => \$single_only,
+    );
     if (!$opt_ok || ($kana !~ /hira/i && $kana !~ /kata/i)) {
         print "Pass either --kana=hira or --kana=kata.\n";
         return 1;

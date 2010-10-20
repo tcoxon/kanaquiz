@@ -23,6 +23,11 @@ hit enter. If you get it wrong, the script will ask for it again. If you give
 up, hit enter without entering anything, and the script will tell you the
 romaji.
 
+By default, the script will present sequences of characters containing small
+tsu, ya, yu, yo, etc. To make it slightly easier to start with, practise on
+only single characters use --single:
+    $ perl quiz.pl --kana=hira --single
+
 Send EOF to exit. On most unixes, this will be Ctrl-D. I believe it might be
 Ctrl-Z on Windows.
 

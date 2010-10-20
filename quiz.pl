@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use Encode qw/encode decode/;
-use Lingua::JA::Romaji 'kanatoromaji';
+use Lingua::JA::Romaji qw/kanatoromaji romajitokana/;
 use Getopt::Long;
 
 use utf8;
@@ -19,11 +19,16 @@ sub utf82eucjp {
     encode("euc-jp", shift)
 }
 
+my $kana;
 my @hiragana = map {eucjp2utf8($_)} keys %Lingua::JA::Romaji::hiragana;
 my @katakana = map {eucjp2utf8($_)} keys %Lingua::JA::Romaji::katakana;
 
 sub kana2roma {
     lc eucjp2utf8(kanatoromaji(utf82eucjp(shift)))
+}
+
+sub roma2kana {
+    eucjp2utf8(romajitokana(eucjp2utf8(shift), $kana))
 }
 
 sub get_ans {
@@ -47,7 +52,7 @@ sub do_test {
         if ($try eq "") {
             print "Skipping question. Answer was '$roma'.\n";
             $done = 1;
-        } elsif ($try =~ /^$roma$/i) {
+        } elsif (roma2kana($try) eq $char) {
             print "Huzzah! Correct answer!\n";
             $done = 1;
         } else {
@@ -71,7 +76,6 @@ sub select_char {
 }
 
 sub main {
-    my $kana = "";
     my $opt_ok = GetOptions("kana=s" => \$kana);
     if (!$opt_ok || ($kana !~ /hira/i && $kana !~ /kata/i)) {
         print "Pass either --kana=hira or --kana=kata.\n";

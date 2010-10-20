@@ -26,9 +26,3 @@ romaji.
 Send EOF to exit. On most unixes, this will be Ctrl-D. I believe it might be
 Ctrl-Z on Windows.
 
-TODO:
------
-
-It's very strict about the romaji spelling. Should probably use the romaji to
-kana conversion provided in Lingua::JA::Romaji instead.
-

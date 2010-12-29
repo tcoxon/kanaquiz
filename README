@@ -28,6 +28,11 @@ tsu, ya, yu, yo, etc. To make it slightly easier to start with, practise on
 only single characters use --single:
     $ perl quiz.pl --kana=hira --single
 
+To go through each kana character exactly once, use --test-all. This will
+prevent repetition, and will go through the whole selected set of kana
+systematically, but in a random order. It will also present progress
+information and a success rate after finishing all kana.
+
 Send EOF to exit. On most unixes, this will be Ctrl-D. I believe it might be
 Ctrl-Z on Windows.
 
